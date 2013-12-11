@@ -30,48 +30,33 @@ function getDirection(i){
 
 function GenerateMaze(x, y){
 	var size = x*y;
-	var maze = new Array(x*y+1);
-	
-	var cell = 0;
-	var num_walls = 0;
-	for(var j = 0; j < y; j++){
-		for(var i = 0; i < x ; i++){
-			//Если соседняя клет
-			if(i == 0){
-				maze[j*x+i] = maze[j*x+i]-97|8; 		//Если клетка первая в ряду, ставим стену слева
-				num_walls++;
-			}
-			if(i == (x - 1)){
-				maze[j*x+i] = maze[j*x+i]-97|2; //Если клетка последняя в ряду, ставим стену справа
-				num_walls++;
-			}
-			if(j == 0){
-				maze[j*x+i] = maze[j*x+i]-97|1; 		//Если клетка первая в столбце, ставим стену сверху
-				num_walls++;
-			}
-			if(j == (y - 1)){
-				maze[j*x+i] = maze[j*x+i]-97|4	//Если клетка последняя в столбце, ставим стену снизу
-				num_walls++;
-			}
-			console.log(num_walls);
-			if(num_walls<2){	//Если клетка имеет меньше двух стен, то ставим еще по крайней мере одну стену
-				var rest = ~~(Math.random()*(2 - num_walls));
-				
-				for(var h = 0; h< rest; h++){
-					var p=[0,1,2,3].filter(function(e,i,a){return this & Math.pow(2,e)?false:true;}, cell)//Найти массив свободных направлений
-					maze[j*x+i] = maze[j*x+i] | p[~~(Math.random()*p.length)];
-					
-				}
-				//alert(cell+" x="+ i + " y=" + j);
-				
-			}
-			//console.log(cell);
-			//maze += String.fromCharCode(97+cell);
-			cell = 0;
-			num_walls = 0;
-			
-		}
+	var maze = new Array(x*y);
+	//Все клетки делаем закрытыми со всех сторон
+	for(var i=0; i< maze.length;i++){
+		maze[i]="p";
 	}
-	//Пройтись по всем клеткам и, если у клетки соседние клетки имеют стены, проставить стены
+	//Случайным 10 клеткам лабиринта выбиваем случайные стены. То же самое делаем с прилегающими стенами соседних клеток
+	for(var i = 0; i < 10; i++){
+		var cell = ~~(Math.random()*x*y);
+		var val = ~~(Math.random()*16)
+		//Окраинных стен это преобразование не касается
+		if( cell%8 != 0  &&  cell%8 != (x - 1) && ~~(cell/8) != 0 && ~~(cell/8) != (y-1) ){
+			maze[cell] = String.fromCharCode(97 + val);
+			
+			if(!(val & 1)){ //Влево
+				maze[cell - 1] = maze[cell - 1] & ~4;
+			}
+			if(!(val & 2)){ //Вверх
+				maze[cell - x] = maze[cell - x] & ~4;
+			}
+			if(!(val & 4)){ //Вправо
+				maze[cell + 1] = maze[cell + 1] & ~1;
+			}
+			if(!(val & 8)){ //Вниз
+				maze[cell + 1] = maze[cell - 1] & ~2;
+			}
+
+		}
+	}	
 	return maze;
 }
